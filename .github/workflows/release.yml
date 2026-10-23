@@ -1,0 +1,39 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      VERSION: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        shell: pwsh
+        run: dotnet publish AllBen-Recoil.csproj -c Release -o publish -p:Version=$env:VERSION
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Copy-Item README.md publish/
+          Compress-Archive -Path publish/* -DestinationPath AllBen-Recoil-win-x64.zip
+
+      - name: Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = git log -1 --pretty=%B
+          gh release create "v$env:VERSION" AllBen-Recoil-win-x64.zip --title "all@Ben-Recoil v$env:VERSION" --notes "$notes"
