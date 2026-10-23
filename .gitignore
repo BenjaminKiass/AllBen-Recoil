@@ -1,0 +1,13 @@
+# .gitignore for AllBen-Recoil
+*.dll
+*.exe
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+bin/
+obj/
+out/
+*.user
+saved/log.txt
+saved/settings.json
+*.tmp
